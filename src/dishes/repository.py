@@ -74,4 +74,11 @@ class DishRepository:
         return dish
 
     async def delete(self, dish_id: int) -> bool:
+        dish = await self.session.get(Dish, dish_id)
+        if dish is None:
+            return False
+        
+        await self.session.delete(dish)
+        await self.session.commit()
+
         return True
