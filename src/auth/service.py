@@ -58,7 +58,10 @@ class AuthService:
         session = await self.refresh_repo.get_active_session(token_jti)
         if not session:
             raise ValueError("刷新令牌已失效")
-        if session.expires_at < datetime.now(timezone.utc):
+        expires_at = session.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < datetime.now(timezone.utc):
             await self.refresh_repo.revoke_session(token_jti)
             raise ValueError("刷新令牌已过期")
 

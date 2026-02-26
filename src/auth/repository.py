@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -39,7 +39,7 @@ class RefreshSessionRepository:
             user_id=user_id,
             token_jti=token_jti,
             expires_at=expires_at,
-            created_at=datetime.now(datetime.UTC),
+            created_at=datetime.now(timezone.utc),
         )
         self.session.add(session)
         await self.session.commit()
@@ -57,5 +57,5 @@ class RefreshSessionRepository:
         session = await self.get_active_session(token_jti)
         if not session:
             return
-        session.revoked_at = datetime.now(datetime.UTC)
+        session.revoked_at = datetime.now(timezone.utc)
         await self.session.commit()

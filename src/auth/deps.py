@@ -1,6 +1,6 @@
 import jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.jwt import decode_token
@@ -8,11 +8,11 @@ from src.auth.model import User
 from src.auth.repository import UserRepository
 from src.core.database import get_db
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+http_bearer = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(http_bearer),
     session: AsyncSession = Depends(get_db),
 ) -> User:
     credentials_exception = HTTPException(
@@ -21,8 +21,11 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    if credentials is None:
+        raise credentials_exception
+
     try:
-        payload = decode_token(token)
+        payload = decode_token(credentials.credentials)
     except jwt.InvalidTokenError as e:
         raise credentials_exception from e
 
