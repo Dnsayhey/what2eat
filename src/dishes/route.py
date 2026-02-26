@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.auth.deps import get_current_user
 from src.core.database import get_db
 from src.dishes.model import Dish
 from src.dishes.repository import DishRepository
@@ -9,7 +10,11 @@ from src.dishes.schema import DishCreate, DishRead, DishUpdate
 from src.dishes.service import DishService
 from sqlalchemy.ext.asyncio import AsyncSession
 
-router = APIRouter(prefix="/dishes", tags=["dishes"])
+router = APIRouter(
+    prefix="/dishes",
+    tags=["dishes"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 def get_dish_service(session: AsyncSession = Depends(get_db)) -> DishService:

@@ -70,6 +70,9 @@ class Settings(BaseSettings):
         return options
     
     jwt_secret: str = "uyb*&TGBB^F7fb88g7"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 15
+    refresh_token_expire_days: int = 7
 
 
 @lru_cache

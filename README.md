@@ -47,6 +47,13 @@ uv run uvicorn src.main:app --reload
 - `DB_TYPE=postgres`
   - 使用 `DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME`
 
+## 认证配置
+
+- `JWT_SECRET`：JWT 签名密钥（生产环境必须替换为高强度随机值）
+- `JWT_ALGORITHM`：签名算法，默认 `HS256`
+- `ACCESS_TOKEN_EXPIRE_MINUTES`：访问令牌有效期（默认 15 分钟）
+- `REFRESH_TOKEN_EXPIRE_DAYS`：刷新令牌有效期（默认 7 天）
+
 ## Alembic 迁移
 
 生成新迁移：
@@ -70,8 +77,16 @@ uv run alembic downgrade -1
 ## 常用接口
 
 - `GET /health`：健康检查
+- `POST /auth/register`：用户注册
+- `POST /auth/login`：用户名密码登录，返回 access/refresh token
+- `POST /auth/refresh`：使用 refresh token 刷新令牌对
+- `POST /auth/logout`：注销当前 refresh 会话
+- `GET /auth/me`：获取当前登录用户信息
 - `POST /dishes`：创建菜品
 - `GET /dishes`：查询菜品列表（支持分页、排序、搜索）
 - `GET /dishes/{dish_id}`：查询单个菜品
 - `PUT /dishes/{dish_id}`：更新菜品
 - `DELETE /dishes/{dish_id}`：删除菜品
+
+`/dishes` 路由组已启用 Bearer Token 鉴权，请在请求头中携带：  
+`Authorization: Bearer <access_token>`

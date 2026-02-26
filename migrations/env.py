@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.core.base_model import Base
 from src.core.config import settings
+import src.auth.model  # noqa: F401
 import src.dishes.model  # noqa: F401
 
 config = context.config
