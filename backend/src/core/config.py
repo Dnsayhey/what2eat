@@ -1,14 +1,18 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+
 class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(BASE_DIR / ".env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
     )
@@ -35,7 +39,7 @@ class Settings(BaseSettings):
     pool_use_lifo: bool = False
     echo: bool = False
 
-    sqlite_db_path: str = "./data/what2eat.sqlite3"
+    sqlite_db_path: str = str(BASE_DIR / "data" / "what2eat.sqlite3")
 
     @computed_field
     @property
@@ -70,6 +74,16 @@ class Settings(BaseSettings):
         return options
     
     jwt_secret: str = "uyb*&TGBB^F7fb88g7"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 15
+    refresh_token_expire_days: int = 7
+
+    frontend_origins: str = "http://127.0.0.1:5173,http://localhost:5173"
+
+    @computed_field
+    @property
+    def frontend_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.frontend_origins.split(",") if origin.strip()]
 
 
 @lru_cache
