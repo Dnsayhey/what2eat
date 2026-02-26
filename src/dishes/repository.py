@@ -55,7 +55,7 @@ class DishRepository:
             desc(order_column) if direction == "desc" else asc(order_column)
         )
 
-        limit = min(limit, 500)
+        limit = max(1, min(limit, 500))
         offset = max(offset, 0)
         paginated_query = query.offset(offset).limit(limit)
         items = list(await self.session.scalars(paginated_query))
@@ -69,7 +69,11 @@ class DishRepository:
         
         for key, value in dish_data.items():
             setattr(dish, key, value)
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            await self.session.rollback()
+            raise
         await self.session.refresh(dish)
         return dish
 

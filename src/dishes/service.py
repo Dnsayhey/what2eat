@@ -41,7 +41,10 @@ class DishService:
         update_data = dish_data.model_dump(exclude_unset=True)
         if not update_data:
             return await self.repository.get_by_id(dish_id)
-        return await self.repository.update(update_data, dish_id)
+        try:
+            return await self.repository.update(update_data, dish_id)
+        except IntegrityError as e:
+            raise ValueError("菜品名称已存在") from e
 
     async def delete_dish(self, dish_id: int) -> bool:
         return await self.repository.delete(dish_id)

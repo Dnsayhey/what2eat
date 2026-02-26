@@ -1,10 +1,7 @@
 from datetime import datetime,  timezone
 
-from sqlalchemy import MetaData, func, DateTime
+from sqlalchemy import MetaData, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-from src.core.config import settings
-
 
 database_naming_convention = {
     "ix": "%(column_0_label)s_idx",
@@ -20,29 +17,15 @@ class Base(DeclarativeBase):
 
 
 class DateTimeMixin:
-    if settings.db_type == "postgres":
-        created_at: Mapped[datetime] = mapped_column(
-            DateTime(timezone=True),
-            server_default=func.now(),
-            nullable=False,
-            index=True,
-        )
-        updated_at: Mapped[datetime] = mapped_column(
-            DateTime(timezone=True),
-            server_default=func.now(),
-            onupdate=func.now(),
-            nullable=False,
-        )
-    else:
-        created_at: Mapped[datetime] = mapped_column(
-            DateTime(timezone=True),
-            default=datetime.now(timezone.utc),
-            nullable=False,
-            index=True,
-        )
-        updated_at: Mapped[datetime] = mapped_column(
-            DateTime(timezone=True),
-            default=datetime.now(timezone.utc),
-            onupdate=datetime.now(timezone.utc),
-            nullable=False,
-        )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        index=True,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )

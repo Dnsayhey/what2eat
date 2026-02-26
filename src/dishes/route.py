@@ -69,13 +69,19 @@ async def update_dish(
     dish_data: DishUpdate,
     service: DishService = Depends(get_dish_service),
 ) -> Dish:
-    dish = await service.update_dish(dish_id, dish_data)
-    if not dish:
+    try:
+        dish = await service.update_dish(dish_id, dish_data)
+        if not dish:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="菜品不存在",
+            )
+        return dish
+    except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="菜品不存在",
-        )
-    return dish
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
 
 
 @router.delete("/{dish_id}", status_code=status.HTTP_204_NO_CONTENT)
